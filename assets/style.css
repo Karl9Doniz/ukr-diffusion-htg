@@ -32,51 +32,56 @@ nav {
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--border);
-  padding: 0 24px;
+  height: 54px;
+  overflow: hidden;
 }
 .nav-inner {
   max-width: 1200px;
+  height: 100%;
   margin: 0 auto;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  height: 52px;
+  flex-wrap: nowrap;
+  gap: 0;
 }
 .nav-left {
-  flex: 0 0 auto;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  margin-right: 24px;
+  padding-right: 20px;
 }
 .nav-links {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 .nav-right {
-  flex: 0 0 auto;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-left: 8px;
+  gap: 16px;
+  padding-left: 12px;
 }
 .nav-logo {
   display: flex;
   align-items: center;
-  opacity: 0.8;
+  opacity: 0.82;
   transition: opacity 0.15s;
 }
 .nav-logo:hover { opacity: 1; }
 .nav-left .nav-logo img {
-  height: 28px;
+  height: 26px;
   width: auto;
-  object-fit: contain;
+  display: block;
 }
 .nav-right .nav-logo img {
-  height: 46px;
+  height: 40px;
   width: auto;
-  object-fit: contain;
+  display: block;
 }
 nav a:not(.nav-logo) {
   text-decoration: none;
@@ -84,6 +89,7 @@ nav a:not(.nav-logo) {
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.02em;
+  white-space: nowrap;
   transition: color 0.15s;
 }
 nav a:not(.nav-logo):hover { color: var(--accent); }
