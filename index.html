@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diffusion-Based Ukrainian Handwritten Text Generation</title>
+  <meta name="description" content="We construct a 126K Ukrainian handwritten word dataset and retrain DiffusionPen on Cyrillic, showing that few-shot latent diffusion models generalize beyond the Latin-script domain." />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <div class="container">
+    <a href="#abstract">Abstract</a>
+    <a href="#method">Method</a>
+    <a href="#results">Results</a>
+    <a href="#transfer">Style Transfer</a>
+    <a href="#bibtex">BibTeX</a>
+    <a href="#references">References</a>
+  </div>
+</nav>
+
+<!-- ── Header ── -->
+<header>
+  <div class="container">
+    <a href="https://icteri.org/icteri-2026/" class="conference-badge" target="_blank" rel="noopener">ICTERI 2026</a>
+
+    <h1>Diffusion-Based Ukrainian Handwritten Text Generation with Cross-Domain Style Transfer</h1>
+
+    <p class="authors">
+      <a href="mailto:ahitoliev.pn@ucu.edu.ua">Andrii Ahitoliev</a><sup>1</sup>
+      &nbsp;&amp;&nbsp;
+      <a href="mailto:pavlo.berezin@gmail.com">Pavlo Berezin</a><sup>2</sup>
+    </p>
+
+    <p class="affiliations">
+      <sup>1</sup> Ukrainian Catholic University, Lviv, Ukraine<br />
+      <sup>2</sup> National University of "Kyiv-Mohyla Academy", Kyiv, Ukraine
+    </p>
+
+    <div class="resources">
+      <a href="#" class="btn btn-outline" title="arXiv coming soon">
+        <!-- document icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        arXiv
+      </a>
+      <a href="https://github.com/Karl9Doniz/diffusionpen_ukr_repo" class="btn btn-outline" target="_blank" rel="noopener">
+        <!-- github icon -->
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        Code
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ── Abstract ── -->
+<section id="abstract">
+  <div class="container">
+    <h2>Abstract</h2>
+    <p>
+      Handwritten text generation (HTG) conditioned on writer style has been widely studied for
+      Latin scripts, but remains underexplored for low-resource and non-Latin writing systems,
+      leaving open how well existing models generalise beyond the Latin domain. Cyrillic,
+      particularly Ukrainian, lacks both large-scale writer-labeled datasets and empirical evidence
+      of such generalisation. To address this gap, we construct a Ukrainian handwritten word
+      dataset of 126,177 images from 308 writers using connected-component segmentation, quality
+      filtering, and targeted oversampling of underrepresented Ukrainian characters.
+    </p>
+    <p>
+      We retrain DiffusionPen<a href="#ref-diffusionpen" class="cite">[1]</a>, a MobileNetV2
+      triplet-loss style encoder with a CANINE-conditioned latent diffusion U-Net, on this dataset
+      without architectural modification, testing direct transfer from Latin to Cyrillic.
+      We evaluate cross-domain style transfer in three settings: cross-lingual transfer from
+      IAM<a href="#ref-iam" class="cite">[6]</a> English samples, zero-shot transfer to an early
+      20th-century Ukrainian manuscript, and few-shot imitation of contemporary writers. The model produces legible, style-consistent word images, indicating
+      that few-shot latent diffusion models generalize beyond the Latin-script domain. We release
+      the dataset, trained models, and evaluation protocol as a reproducible benchmark for
+      writer-aware Cyrillic HTG, providing a foundation for extending stylized HTG to other
+      underrepresented writing systems.
+    </p>
+  </div>
+</section>
+
+<!-- ── Contributions ── -->
+<section id="contributions">
+  <div class="container">
+    <h2>Contributions</h2>
+    <div class="contributions">
+      <ul>
+        <li>
+          <span class="contrib-num">1</span>
+          <span>A Ukrainian handwritten word-level dataset with <strong>126K samples from 308 writers</strong>, constructed via connected-component segmentation, quality filtering, and targeted oversampling of rare Cyrillic characters.</span>
+        </li>
+        <li>
+          <span class="contrib-num">2</span>
+          <span><strong>Adaptation of DiffusionPen to Cyrillic</strong> without architectural modification, demonstrating that a Latin-trained few-shot HTG model transfers directly to a new script.</span>
+        </li>
+        <li>
+          <span class="contrib-num">3</span>
+          <span>Empirical evaluation of <strong>cross-domain style transfer</strong> in three settings: cross-lingual (English → Ukrainian), historical archival, and few-shot imitation of unseen contemporary writers.</span>
+        </li>
+        <li>
+          <span class="contrib-num">4</span>
+          <span>Analysis of <strong>dataset construction factors</strong> (size vs. purity, segmentation method, U-Net depth) and their effect on generation quality via controlled ablations.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── Method ── -->
+<section id="method">
+  <div class="container">
+    <h2>Method</h2>
+
+    <h3>Dataset Construction</h3>
+    <p>
+      No Ukrainian word-level handwriting dataset with writer labels existed prior to this work.
+      We derive one from the UkrHandwritten line-level corpus<a href="#ref-ukrhandwritten" class="cite">[4]</a> (37,111 lines, 331 writers) through
+      a four-stage pipeline: pre-segmentation artifact removal with a NAFNet restoration network,
+      Otsu binarization, connected-component proximity merging (gap ≤ 8 px), and N−1 widest-gap
+      word boundary selection. The method achieves <strong>95.7% boundary accuracy</strong> on a
+      500-line evaluation subset, compared to 71.7% for vertical-projection baselines.
+      After quality filtering and oversampling of rare letters (ф, ї, Щ, Є, Ц, і), the final
+      dataset contains <strong>126,177 word images from 308 writers</strong>.
+    </p>
+
+    <figure class="figure wide">
+      <img src="assets/figures/fig1_segmentation.png"
+           alt="Connected-component word segmentation pipeline showing 4 steps: original line, Otsu-binarized with bounding boxes, components after proximity merging, and final word crops." />
+      <figcaption><strong>Fig. 1.</strong> Connected-component word segmentation pipeline.</figcaption>
+    </figure>
+
+    <h3>Model Architecture</h3>
+    <p>
+      We adopt <strong>DiffusionPen</strong><a href="#ref-diffusionpen" class="cite">[1]</a> without
+      architectural modification. The model is a conditional latent diffusion model operating in
+      the 4×8×32 latent space of a frozen Stable Diffusion v1.5<a href="#ref-sd" class="cite">[8]</a>
+      VAE. At each denoising step, a U-Net receives three conditioning signals: (1) a text
+      embedding <strong>c</strong> ∈ ℝ<sup>768</sup> from a CANINE<a href="#ref-canine" class="cite">[7]</a>
+      character-level encoder, projected to dimension 320; (2) a style embedding
+      <strong>s</strong> ∈ ℝ<sup>1280</sup> from a frozen MobileNetV2 style encoder trained with
+      triplet loss, mean-pooled over five reference images; and (3) a learned writer label
+      embedding summed with <strong>s</strong>. Both conditioning signals are injected via
+      cross-attention.
+    </p>
+
+    <figure class="figure wide">
+      <img src="assets/figures/fig2_architecture.png"
+           alt="Model architecture diagram showing three paths: text path (CANINE encoder), diffusion core (U-Net denoiser + VAE decoder), and style path (MobileNetV2 encoder + writer ID embedding)." />
+      <figcaption>
+        <strong>Fig. 2.</strong> Model architecture at inference. Text and style conditioning are
+        injected into the U-Net denoiser via cross-attention. Five reference word images from the
+        same writer define the style embedding.
+      </figcaption>
+    </figure>
+
+    <h3>Training &amp; Sentence Assembly</h3>
+    <p>
+      The model is trained for 200 epochs on the 126K dataset with the standard LDM
+      noise-prediction objective on a single RTX 4090 GPU (TF32, batch size 24). Classifier-free
+      guidance uses p<sub>drop</sub> = 0.2 for text; style conditioning is never dropped.
+      Inference uses 50 DDIM steps with CFG scale ω = 5.0.
+    </p>
+    <p>
+      Individual word images are assembled into sentence strips via baseline alignment (span-based
+      body-row detection), brightness normalization, and real handwritten punctuation marks
+      sampled from a bank of 500 training-corpus marks.
+    </p>
+  </div>
+</section>
+
+<!-- ── Results ── -->
+<section id="results">
+  <div class="container">
+    <h2>Results</h2>
+
+    <p>
+      All generated images are 64×256 pixels. Evaluation uses three metrics: Fréchet Inception
+      Distance (FID) on 5,000 matched writer-word pairs across all 308 writers; Learned
+      Perceptual Image Patch Similarity (LPIPS) on the same pairs; and Character Error Rate (CER)
+      via a pretrained Cyrillic TrOCR model on 4,928 generated words.
+    </p>
+
+    <div class="results-grid">
+      <div class="table-group">
+        <h3>Visual Quality</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>FID (5,000 samples, 308 writers)</td><td>23.09</td></tr>
+              <tr><td>LPIPS overall mean</td><td>0.367</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-caption">FID 23.09 is comparable to DiffusionPen on English IAM (~20–25), indicating Ukrainian generation quality is on par with Latin-script state of the art.</p>
+      </div>
+
+      <div class="table-group">
+        <h3>Contextual Comparison</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Model</th><th>Dataset</th><th>FID ↓</th><th>CER ↓</th></tr></thead>
+            <tbody>
+              <tr><td><strong>This paper</strong></td><td>Ukrainian</td><td><strong>23.09</strong></td><td><strong>16.0%</strong></td></tr>
+              <tr><td>DiffusionPen<a href="#ref-diffusionpen" class="cite">[1]</a></td><td>IAM</td><td>22.54</td><td>6.94%*</td></tr>
+              <tr><td>WordStylist<a href="#ref-wordstylist" class="cite">[2]</a></td><td>IAM</td><td>22.74</td><td>—</td></tr>
+              <tr><td>GANwriting<a href="#ref-ganwriting" class="cite">[3]</a></td><td>IAM</td><td>43.97†</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-caption">Cross-paper values are not directly comparable (different datasets, scripts, and evaluation protocols). *CER from HTR imitation on IAM. †FID as reported in DiffusionPen.</p>
+      </div>
+    </div>
+
+    <figure class="figure wide" style="margin-top:32px">
+      <img src="assets/figures/fig3_generated.png"
+           alt="Generated sentence strips in two distinct writer styles." />
+      <figcaption><strong>Fig. 3.</strong> Generated sentences in two writer styles.</figcaption>
+    </figure>
+
+    <figure class="figure">
+      <img src="assets/figures/fig4_style_reproduction.png"
+           alt="Grid comparing real and generated word images for four writers on two target words, showing style preservation." />
+      <figcaption>
+        <strong>Fig. 4.</strong> Word-level style reproduction on seen writers. Each pair shows a
+        real crop (left) and the generated word (right) for the same text and writer. Slant,
+        stroke endings, and connectivity are visually preserved.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ── Cross-Domain Style Transfer ── -->
+<section id="transfer">
+  <div class="container">
+    <h2>Cross-Domain Style Transfer</h2>
+    <p>
+      The triplet-loss style encoder learns a metric space based on visual stroke properties rather
+      than writer identity labels. This enables meaningful style embeddings from handwriting samples
+      entirely absent from training, including samples in other scripts and historical documents.
+      We test this capability in three settings of increasing domain shift.
+    </p>
+
+    <div class="transfer-grid">
+      <div>
+        <h3>5.1 &nbsp;Cross-Lingual Transfer: English → Ukrainian</h3>
+        <p>
+          Five reference word images from a single IAM<a href="#ref-iam" class="cite">[6]</a> English
+          writer are passed through the style encoder; the resulting embedding generates Ukrainian
+          words. The output visibly reproduces the source writer's stroke weight, angle, and spacing.
+        </p>
+        <figure class="figure">
+          <img src="assets/figures/fig5_cross_lingual.png"
+               alt="English IAM reference words (know, from, great, mean, wife) above generated Ukrainian words in the same handwriting style." />
+          <figcaption>
+            <strong>Fig. 5.</strong> Cross-lingual style transfer. Top: English IAM reference words.
+            Bottom: Generated Ukrainian words in the same writer's style.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div>
+        <h3>5.2 &nbsp;Historical Archival Transfer</h3>
+        <p>
+          Reference images are sourced from a digitised early 20th-century Ukrainian manuscript
+          archived by the Central State Historical Archives of Ukraine. The generated words adopt
+          the manuscript's calligraphic qualities: wider strokes, more formal letter proportions,
+          and reduced inter-letter connectivity, while still producing modern Ukrainian character forms.
+        </p>
+        <figure class="figure">
+          <img src="assets/figures/fig6_historical.png"
+               alt="Archival manuscript reference crops above generated Ukrainian words that adopt the calligraphic style." />
+          <figcaption>
+            <strong>Fig. 6.</strong> Historical archival style transfer from an early
+            20th-century Ukrainian manuscript.
+          </figcaption>
+        </figure>
+      </div>
+
+      <div>
+        <h3>5.3 &nbsp;Unseen Contemporary Writer Transfer</h3>
+        <p>
+          Reference images are drawn from the RUKOPYS dataset<a href="#ref-rukopys" class="cite">[5]</a>, whose writers do not appear in the
+          training set. The generated words capture the unseen writer's slant, stroke weight, and
+          letter shapes without any fine-tuning, confirming that the five-shot style encoding
+          mechanism generalises to new writers at inference time.
+        </p>
+        <figure class="figure">
+          <img src="assets/figures/fig7_unseen_writer.png"
+               alt="Reference crops from an unseen writer (blue ink) above generated words that match the writing style." />
+          <figcaption>
+            <strong>Fig. 7.</strong> Zero-shot style transfer to an unseen contemporary writer
+            from the RUKOPYS dataset. No fine-tuning is performed.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BibTeX ── -->
+<section id="bibtex">
+  <div class="container">
+    <h2>BibTeX</h2>
+    <div class="bibtex-wrap">
+      <pre id="bibtex-code">@inproceedings{ukrdiffusion2026,
+  title     = {Diffusion-Based Ukrainian Handwritten Text Generation
+               with Cross-Domain Style Transfer},
+  author    = {Ahitoliev, Andrii and Berezin, Pavlo},
+  booktitle = {Proceedings of the International Conference on
+               Information and Communication Technologies in
+               Education, Research, and Industrial Applications
+               (ICTERI)},
+  year      = {2026}
+}</pre>
+      <button class="copy-btn" onclick="copyBibtex(this)">Copy</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── References ── -->
+<section id="references">
+  <div class="container">
+    <h2>References</h2>
+    <ol class="ref-list">
+      <li id="ref-diffusionpen">
+        K. Nikolaidou, G. Retsinas, G. Sfikas, G. Liwicki.
+        <em>DiffusionPen: Towards controlling the style of handwritten text generation.</em>
+        In European Conference on Computer Vision (ECCV), 2024.
+      </li>
+      <li id="ref-wordstylist">
+        K. Nikolaidou, G. Retsinas, V. Christlein, M. Seuret, G. Sfikas, E.H. Barney Smith, H. Mokayed, M. Liwicki.
+        <em>WordStylist: Styled verbatim handwritten text generation with latent diffusion models.</em>
+        In International Conference on Document Analysis and Recognition (ICDAR), 2023.
+      </li>
+      <li id="ref-ganwriting">
+        L. Kang, P. Riba, M. Rusiñol, A. Fornés, M. Villegas.
+        <em>GANwriting: Content-conditioned generation of styled handwritten word images.</em>
+        In European Conference on Computer Vision (ECCV), 2020.
+      </li>
+      <li id="ref-ukrhandwritten">
+        A. Hnatiuk.
+        <em>Ukrainian handwritten text.</em>
+        Kaggle dataset, 2022.
+        <a href="https://www.kaggle.com/datasets/annyhnatiuk/ukrainian-handwritten-text" target="_blank" rel="noopener">kaggle.com/datasets/annyhnatiuk/ukrainian-handwritten-text</a>
+      </li>
+      <li id="ref-rukopys">
+        D. Voitekh, V. Zmiivskyyi, O. Molchanovskyi.
+        <em>RUKOPYS: Ukrainian handwritten text recognition dataset.</em>
+        2026.
+        <a href="https://huggingface.co/UkrainianCatholicUniversity/rukopys" target="_blank" rel="noopener">huggingface.co/UkrainianCatholicUniversity/rukopys</a>
+      </li>
+      <li id="ref-iam">
+        U.V. Marti, H. Bunke.
+        <em>The IAM-database: An English sentence database for offline handwriting recognition.</em>
+        International Journal on Document Analysis and Recognition, 5(1):39–46, 2002.
+        <a href="https://fki.tic.unibe.ch/databases/iam-handwriting-database" target="_blank" rel="noopener">fki.tic.unibe.ch/databases/iam-handwriting-database</a>
+      </li>
+      <li id="ref-canine">
+        J.H. Clark, D. Garrette, I. Turc, J. Wieting.
+        <em>CANINE: Pre-training an efficient tokenization-free encoder for language representation.</em>
+        Transactions of the Association for Computational Linguistics, 10:73–91, 2022.
+        <a href="https://aclanthology.org/2022.tacl-1.5" target="_blank" rel="noopener">aclanthology.org/2022.tacl-1.5</a>
+      </li>
+      <li id="ref-sd">
+        R. Rombach, A. Blattmann, D. Lorenz, P. Esser, B. Ommer.
+        <em>High-resolution image synthesis with latent diffusion models.</em>
+        In IEEE/CVF CVPR, pp. 10684–10695, 2022.
+        <a href="https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5" target="_blank" rel="noopener">huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <p>
+      Andrii Ahitoliev &amp; Pavlo Berezin · ICTERI 2026 ·
+      Ukrainian Catholic University &amp; Kyiv-Mohyla Academy
+    </p>
+  </div>
+</footer>
+
+<script>
+function copyBibtex(btn) {
+  const text = document.getElementById('bibtex-code').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
