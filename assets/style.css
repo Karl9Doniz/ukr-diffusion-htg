@@ -97,6 +97,29 @@ h1 {
   line-height: 1.8;
 }
 
+/* ── Institution logos ── */
+.logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.logos a {
+  opacity: 0.85;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+}
+.logos a:hover { opacity: 1; }
+.logos img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+.logos a:first-child img { height: 40px; }  /* ICTERI is wider, keep it proportional */
+
 /* ── Resource buttons ── */
 .resources {
   display: flex;
