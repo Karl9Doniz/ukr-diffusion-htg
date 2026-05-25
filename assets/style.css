@@ -32,15 +32,48 @@ nav {
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--border);
-  padding: 10px 0;
+  padding: 0 24px;
 }
-nav .container {
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 24px;
+  height: 52px;
+}
+.nav-left {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin-right: 24px;
+}
+.nav-links {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   flex-wrap: wrap;
 }
-nav a {
+.nav-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: 24px;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.nav-logo:hover { opacity: 1; }
+.nav-logo img {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+}
+nav a:not(.nav-logo) {
   text-decoration: none;
   color: var(--muted);
   font-size: 14px;
@@ -48,7 +81,7 @@ nav a {
   letter-spacing: 0.02em;
   transition: color 0.15s;
 }
-nav a:hover { color: var(--accent); }
+nav a:not(.nav-logo):hover { color: var(--accent); }
 
 /* ── Header ── */
 header {
@@ -96,29 +129,6 @@ h1 {
   margin-bottom: 28px;
   line-height: 1.8;
 }
-
-/* ── Institution logos ── */
-.logos {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 36px;
-  flex-wrap: wrap;
-  margin-bottom: 28px;
-}
-.logos a {
-  opacity: 0.85;
-  transition: opacity 0.15s;
-  display: flex;
-  align-items: center;
-}
-.logos a:hover { opacity: 1; }
-.logos img {
-  height: 48px;
-  width: auto;
-  object-fit: contain;
-}
-.logos a:first-child img { height: 40px; }  /* ICTERI is wider, keep it proportional */
 
 /* ── Resource buttons ── */
 .resources {
